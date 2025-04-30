@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import './SignUpForm.css'; // Import the CSS file for styling
+import './signUpAsAdmin.css'; // Import the CSS file for styling
 
-const SignUpForm = () => {
+const SignUpAsAdmin = () => {
     const [countries, setCountries] = useState([]);
     const [cities, setCities] = useState([]);
     const [loading, setLoading] = useState({
@@ -217,4 +217,4 @@ const SignUpForm = () => {
     );
 };
 
-export default SignUpForm;
+export default SignUpAsAdmin;

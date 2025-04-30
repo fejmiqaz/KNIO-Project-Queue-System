@@ -1,9 +1,10 @@
-import SignUpForm from './SignUpForm.jsx';
+import SignUpAsAdmin from './signUpAsAdmin.jsx';
+import SignUpAsUser from './signUpAsUser.jsx';
 
 function App() {
     return (
         <div className="App">
-            <SignUpForm />
+            <SignUpAsUser />
         </div>
     );
 }
