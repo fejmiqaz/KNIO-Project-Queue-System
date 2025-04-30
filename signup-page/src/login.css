@@ -1,0 +1,67 @@
+body,
+html {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+body {
+    font-family: "Cal Sans", sans-serif;
+    background-image: repeating-radial-gradient(circle at 0 0, transparent 0, #e5e5f7 10px),
+    repeating-linear-gradient(#457efa55, #444cf7);
+}
+
+.loginForm {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+fieldset {
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    width: 400px;
+    height: 450px;
+    padding: 10px;
+    border: 5px solid lightblue;
+    border-radius: 20px;
+    background-color: rgba(255, 255, 255, 1);
+}
+
+h1 {
+    text-align: center;
+    letter-spacing: 2px;
+    color: blue;
+}
+
+input {
+    width: 250px;
+    height: 30px;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    background-color: rgb(243, 241, 241);
+    outline: none;
+}
+
+p {
+    color: blue;
+    font-family: "Cal Sans", sans-serif;
+}
+
+#logInButton {
+    width: 200px;
+    height: 30px;
+    border-radius: 20px;
+    background-color: blue;
+    color: white;
+    border: none;
+    font-family: "Cal Sans", sans-serif;
+
+}
+
+#logInButton:hover {
+    background-color: lightseagreen;
+    cursor: pointer;
+}
