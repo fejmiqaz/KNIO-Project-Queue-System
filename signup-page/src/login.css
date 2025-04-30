@@ -9,6 +9,9 @@ body {
     font-family: "Cal Sans", sans-serif;
     background-image: repeating-radial-gradient(circle at 0 0, transparent 0, #e5e5f7 10px),
     repeating-linear-gradient(#457efa55, #444cf7);
+    display:flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .loginForm {
@@ -21,10 +24,10 @@ fieldset {
     display: grid;
     justify-content: center;
     align-items: center;
-    width: 400px;
-    height: 450px;
+    width: 350px;
+    height: 500px;
     padding: 10px;
-    border: 5px solid lightblue;
+    border: 0;
     border-radius: 20px;
     background-color: rgba(255, 255, 255, 1);
 }
