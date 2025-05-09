@@ -17,8 +17,10 @@ const LoginForm = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
         console.log('Logging in with:', formData);
         // You can send `formData` to your backend here
+
         setSuccess(true);
     };
 
