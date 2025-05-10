@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queue Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.24.2/plotly.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-light: #eef2ff;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --neutral-color: #f3f4f6;
+            --text-color: #1f2937;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 8px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f9fafb;
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-link {
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            transition: background-color 0.2s;
+        }
+
+        .nav-link:hover {
+            background-color: var(--neutral-color);
+        }
+
+        .container {
+            background-color: white;
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .date-selector {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .date-selector select, .date-selector input {
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: var(--radius);
+            font-size: 1rem;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            background-color: #4338ca;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .chart-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background-color: white;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        #queueHeatmap {
+            height: 400px;
+        }
+
+        #hourlyQueueChart {
+            height: 350px;
+        }
+
+        .activity-table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            font-weight: 600;
+            text-align: left;
+            padding: 1rem;
+        }
+
+        td {
+            padding: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .table-caption {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 1rem 0;
+            color: var(--text-color);
+        }
+
+        @media (max-width: 950px) {
+            .chart-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .date-selector {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            th, td {
+                padding: 0.75rem 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Queue Dashboard</h1>
+    <div class="nav-links">
+        <a href="JoinTheQueue.html" class="nav-link">Queue</a>
+        <a href="#" class="nav-link">Dashboard</a>
+    </div>
+</header>
+
+<div class="container">
+    <div class="dashboard-header">
+        <h2>Daily Queue Analytics</h2>
+        <div class="date-selector">
+            <label for="date-select">Select Date:</label>
+            <input type="date" id="date-select" value="2025-05-10">
+            <button class="btn" onclick="refreshData()">Refresh</button>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total Students</div>
+            <div class="stat-value" id="total-students">134</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Peak Queue Size</div>
+            <div class="stat-value" id="peak-queue">28</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Average Wait Time</div>
+            <div class="stat-value" id="avg-wait">14 min</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Busiest Hour</div>
+            <div class="stat-value" id="busiest-hour">14:00</div>
+        </div>
+    </div>
+</div>
+
+<div class="chart-container">
+    <div class="chart-card">
+        <div class="chart-title">Hourly Queue Size</div>
+        <div id="hourlyQueueChart"></div>
+    </div>
+    <div class="chart-card">
+        <div class="chart-title">Queue Activity Heatmap</div>
+        <div id="queueHeatmap"></div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="activity-table-container">
+        <div class="table-caption">Queue Activity Log</div>
+        <table id="activityTable">
+            <thead>
+            <tr>
+                <th>Time</th>
+                <th>Action</th>
+                <th>Username</th>
+                <th>Queue Size</th>
+                <th>Wait Time</th>
+            </tr>
+            </thead>
+            <tbody id="activityTableBody">
+            <!-- Activity logs will be generated here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // Simulated data for demonstration
+    // In a real implementation, this would be fetched from a database
+    function generateDailyQueueData() {
+        // Generate hourly data points (24 hours)
+        const hourlyData = [];
+        // Simulate typical daily pattern with morning and afternoon peaks
+        const basePattern = [
+            2, 3, 2, 1, 0, 1,
+            4, 8, 15, 18, 20, 22,
+            25, 28, 26, 22, 18, 14,
+            12, 10, 8, 6, 4, 3
+        ];
+
+        // Add some randomness to the pattern
+        for (let hour = 0; hour < 24; hour++) {
+            const baseValue = basePattern[hour];
+            const randomVariation = Math.floor(Math.random() * 5) - 2; // -2 to +2
+            const value = Math.max(0, baseValue + randomVariation);
+
+            hourlyData.push({
+                hour: hour,
+                queueSize: value,
+                formattedHour: `${hour.toString().padStart(2, '0')}:00`
+            });
+        }
+
+        return hourlyData;
+    }
+
+    function generateActivityLog(hourlyData) {
+        const activityLog = [];
+        const usernames = [
+            'student123', 'learner456', 'coder789', 'javascriptFan',
+            'webdev101', 'csStudent', 'mathMajor', 'pythonLover',
+            'dataScience22', 'algorithmPro', 'networkGuru', 'frontEndDev'
+        ];
+
+        const actions = ['joined', 'removed'];
+
+        // Generate log entries
+        let currentQueueSize = 0;
+
+        hourlyData.forEach(hourData => {
+            const hour = hourData.hour;
+            const target = hourData.queueSize;
+
+            // Number of events in this hour
+            const numEvents = Math.max(5, Math.floor(Math.random() * 10) + target);
+
+            for (let i = 0; i < numEvents; i++) {
+                const minute = Math.floor(Math.random() * 60);
+                const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+
+                // Determine if we need to add or remove people to reach the target queue size
+                let action;
+                if (currentQueueSize < target) {
+                    action = 'joined';
+                    currentQueueSize++;
+                } else if (currentQueueSize > target && currentQueueSize > 0) {
+                    action = 'removed';
+                    currentQueueSize--;
+                } else {
+                    // If we're at target, randomly add/remove
+                    action = actions[Math.floor(Math.random() * actions.length)];
+                    if (action === 'joined') {
+                        currentQueueSize++;
+                    } else if (currentQueueSize > 0) {
+                        currentQueueSize--;
+                    } else {
+                        action = 'joined';
+                        currentQueueSize++;
+                    }
+                }
+
+                const username = usernames[Math.floor(Math.random() * usernames.length)];
+                const waitTime = Math.floor(currentQueueSize * 5 * (0.8 + Math.random() * 0.4)); // Average 5 min per person with variance
+
+                activityLog.push({
+                    time,
+                    action,
+                    username,
+                    queueSize: currentQueueSize,
+                    waitTime: `${waitTime} min`
+                });
+            }
+        });
+
+        // Sort by time
+        activityLog.sort((a, b) => {
+            const [aHour, aMin] = a.time.split(':').map(Number);
+            const [bHour, bMin] = b.time.split(':').map(Number);
+
+            if (aHour !== bHour) {
+                return aHour - bHour;
+            }
+            return aMin - bMin;
+        });
+
+        return activityLog;
+    }
+
+    function renderHourlyChart(data) {
+        const hours = data.map(d => d.formattedHour);
+        const queueSizes = data.map(d => d.queueSize);
+
+        const trace = {
+            x: hours,
+            y: queueSizes,
+            type: 'scatter',
+            mode: 'lines+markers',
+            line: {
+                color: '#4f46e5',
+                width: 3
+            },
+            marker: {
+                color: '#4f46e5',
+                size: 8
+            },
+            fill: 'tozeroy',
+            fillcolor: 'rgba(79, 70, 229, 0.1)'
+        };
+
+        const layout = {
+            margin: { t: 10, r: 20, l: 40, b: 40 },
+            xaxis: {
+                title: 'Hour of Day',
+                tickangle: -45
+            },
+            yaxis: {
+                title: 'Queue Size'
+            },
+            hovermode: 'closest'
+        };
+
+        Plotly.newPlot('hourlyQueueChart', [trace], layout);
+    }
+
+    function renderHeatmap(data) {
+        // Convert hourly data to heatmap format
+        // We'll show day segments (morning, afternoon, evening, night) versus queue size ranges
+
+        const daySegments = ['Morning (6-11)', 'Afternoon (12-17)', 'Evening (18-23)', 'Night (0-5)'];
+        const queueRanges = ['0-5', '6-10', '11-15', '16-20', '21+'];
+
+        // Initialize the heatmap data
+        const heatmapData = Array(daySegments.length).fill().map(() => Array(queueRanges.length).fill(0));
+
+        // Process the data
+        data.forEach(hourData => {
+            const hour = hourData.hour;
+            const queueSize = hourData.queueSize;
+
+            // Determine day segment
+            let segmentIndex;
+            if (hour >= 6 && hour < 12) {
+                segmentIndex = 0; // Morning
+            } else if (hour >= 12 && hour < 18) {
+                segmentIndex = 1; // Afternoon
+            } else if (hour >= 18) {
+                segmentIndex = 2; // Evening
+            } else {
+                segmentIndex = 3; // Night
+            }
+
+            // Determine queue range
+            let rangeIndex;
+            if (queueSize <= 5) {
+                rangeIndex = 0;
+            } else if (queueSize <= 10) {
+                rangeIndex = 1;
+            } else if (queueSize <= 15) {
+                rangeIndex = 2;
+            } else if (queueSize <= 20) {
+                rangeIndex = 3;
+            } else {
+                rangeIndex = 4;
+            }
+
+            // Increment the count
+            heatmapData[segmentIndex][rangeIndex]++;
+        });
+
+        const trace = {
+            z: heatmapData,
+            x: queueRanges,
+            y: daySegments,
+            type: 'heatmap',
+            colorscale: [
+                [0, 'rgb(247, 247, 247)'],
+                [0.2, 'rgb(219, 223, 255)'],
+                [0.4, 'rgb(180, 181, 255)'],
+                [0.6, 'rgb(140, 140, 250)'],
+                [0.8, 'rgb(101, 99, 245)'],
+                [1, 'rgb(79, 70, 229)']
+            ]
+        };
+
+        const layout = {
+            title: '',
+            margin: { t: 10, r: 20, l: 120, b: 40 },
+            xaxis: {
+                title: 'Queue Size Range'
+            },
+            yaxis: {
+                title: 'Time of Day'
+            }
+        };
+
+        Plotly.newPlot('queueHeatmap', [trace], layout);
+    }
+
+    function populateActivityTable(activities) {
+        const tableBody = document.getElementById('activityTableBody');
+        tableBody.innerHTML = '';
+
+        // Display the most recent 15 activities
+        const recentActivities = activities.slice(-15);
+
+        recentActivities.forEach(activity => {
+            const row = document.createElement('tr');
+
+            row.innerHTML = `
+          <td>${activity.time}</td>
+          <td>${activity.action}</td>
+          <td>${activity.username}</td>
+          <td>${activity.queueSize}</td>
+          <td>${activity.waitTime}</td>
+        `;
+
+            tableBody.appendChild(row);
+        });
+    }
+
+    function updateStatistics(hourlyData, activityLog) {
+        // Calculate statistics
+        const totalStudents = activityLog.filter(log => log.action === 'joined').length;
+        const peakQueue = Math.max(...hourlyData.map(d => d.queueSize));
+
+        // Calculate average wait time
+        const waitTimes = activityLog.map(log => parseInt(log.waitTime));
+        const avgWait = Math.round(waitTimes.reduce((sum, time) => sum + time, 0) / waitTimes.length);
+
+        // Find busiest hour
+        let busiestHour = hourlyData[0];
+        for (const hourData of hourlyData) {
+            if (hourData.queueSize > busiestHour.queueSize) {
+                busiestHour = hourData;
+            }
+        }
+
+        // Update DOM
+        document.getElementById('total-students').textContent = totalStudents;
+        document.getElementById('peak-queue').textContent = peakQueue;
+        document.getElementById('avg-wait').textContent = `${avgWait} min`;
+        document.getElementById('busiest-hour').textContent = busiestHour.formattedHour;
+    }
+
+    function refreshData() {
+        const selectedDate = document.getElementById('date-select').value;
+        console.log(`Refreshing data for: ${selectedDate}`);
+
+        // Generate data based on selected date (in a real app, this would be an API call)
+        const hourlyData = generateDailyQueueData();
+        const activityLog = generateActivityLog(hourlyData);
+
+        // Update visualizations
+        renderHourlyChart(hourlyData);
+        renderHeatmap(hourlyData);
+        populateActivityTable(activityLog);
+        updateStatistics(hourlyData, activityLog);
+    }
+
+    // Initial load
+    document.addEventListener('DOMContentLoaded', function() {
+        refreshData();
+    });
+</script>
+</body>
+</html>
